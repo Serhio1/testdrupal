@@ -1,0 +1,97 @@
+<?php
+
+function seoblock_help($path, $arg)
+{
+    $output = '';
+	switch ($path) {
+	    case 'admin/help#seoblock':
+		    $output = '<p>'. t('Displays information about site') .'</p>';
+			break;
+	}
+	
+	return $output;
+} //function seoblock_help
+
+function seoblock_perm()
+{
+    return array('access seoblock content', 'access administration pages'); 
+} //function seoblock_perm
+
+function seoblock_menu()
+{
+    $items = array();
+	$items['admin/settings/seoblock'] = array(
+	    'title'            => 'seoblock module settings',
+		'description'      => 'Description of your seoblock settings page',
+		'page callback'    => 'drupal_get_form',
+		'page arguments'   => array('seoblock_admin'),
+		'access arguments' => array('access adminnistration pages'),
+		'type'             => MENU_NORMAL_ITEM,
+	);
+	
+	return $items;
+}
+
+function seoblock_admin()
+{
+  $form = array();
+
+  $form['sitename'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Sitename'),
+    '#default_value' => variable_get('sitename', ''),
+    '#size' => 20,
+    '#maxlength' => 20,
+    '#description' => t('without "http://"'),
+  );
+
+$form['alexa'] = array(
+  '#type' => 'checkbox',
+  '#title' => t('Display Alexa rank'),
+  '#default_value' => variable_get('alexa', false),
+);
+
+$form['tic'] = array(
+  '#type' => 'checkbox',
+  '#title' => t('Display Yandex.Tic'),
+  '#default_value' => variable_get('tic', false),
+);
+
+$form['pr'] = array(
+  '#type' => 'checkbox',
+  '#title' => t('Display Google.PR'),
+  '#default_value' => variable_get('pr', false),
+);
+
+  return system_settings_form($form);
+} //function seoblock_admin
+
+function seoblock_block($op='list', $delta=0) 
+{
+
+  if ($op == "list") {
+    $block = array();
+    $block[0]["info"] = t('seoblock');
+    return $block;
+  }
+
+  else if ($op == 'view') {
+    switch ($delta) {
+      case 0:
+    $block_content = '';
+    $block['subject'] = 'seoblock';
+
+    $tic= variable_get('tic', false);  //получаем настройки нашего модуля
+    $alexa= variable_get('alexa', false);
+    $pr= variable_get('pr', false);
+
+    if ($tic or $alexa or $pr) {  //Функции честно скомуниздил в интернетах -)
+      if ($tic)  $block['content'] .= 'Яндекс.Тиц: '.cy(variable_get('sitename', false)).'<br>';
+      if ($alexa)  $block['content'] .= 'Alexa rank: '.alexa(variable_get('sitename', false)).'<br>';
+      if ($pr)  $block['content'] .= 'Google.PR: '.getPageRank(variable_get('sitename', false));
+    }
+      break;
+    }
+return $block;
+  }
+}  // function seoblock_block

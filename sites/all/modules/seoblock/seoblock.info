@@ -1,0 +1,4 @@
+; $Id$
+name = Seoblock
+description = Display info about site
+core = 7.x
